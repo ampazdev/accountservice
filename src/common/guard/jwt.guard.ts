@@ -15,7 +15,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     status?: any,
   ) {
     const request = context.switchToHttp().getRequest();
-    //HACK not recommended though 😅
+    // ToDo: Improve this to allow only authorized request
     this.reflector = new Reflector();
     const allowAny = this.reflector.get<string[]>(
       'allow-any',

@@ -31,7 +31,6 @@ export class AuthService implements IAuthService {
         },
       });
 
-      console.log('user:' + user.password);
       const token = await this.signToken(user.id, user.email);
       const userToReturn: UserDto = {
         email: user.email,
@@ -44,11 +43,8 @@ export class AuthService implements IAuthService {
       return userToReturn;
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
-        console.log('email is taken');
-        if (e.code === 'P2002') throw new BadRequestException('email is taken');
-      } else {
-        console.log('error '+e);
-      }
+        if (e.code === prismaUniqueConstraintViolationError) throw new BadRequestException('email is taken');
+      } 
     }
   }
 
@@ -60,10 +56,6 @@ export class AuthService implements IAuthService {
     });
     if (!user) throw new NotFoundException('user does not exist');
     const matches = await argon.verify(user.password, dto.password);
-
-    // const hashedInputPassword = await argon.hash(dto.password);
-    // console.log('login with: ' + hashedInputPassword + ' vs ' + user.password);
-    // if (hashedInputPassword!==user.password)
     
     if (!matches)
       throw new UnauthorizedException('password and email do not match');
